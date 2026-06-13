@@ -1,17 +1,18 @@
 # Avighn Medicare — Admin Dashboard
 
-Flutter Web admin panel for pharmacy catalogue management.  
-**Backend:** Google Sheets + Apps Script &nbsp;|&nbsp; **Hosting:** GitHub Pages
+Flutter Web admin panel for pharmacy catalogue management.
 
 ---
 
-## 🔑 Default Credentials
+```
+flutter build web --base-href "/avighn-medicare-admin-dashboard/"
+cd build/web
+git init
+git checkout -b gh-pages
+git add -A
+git commit -m "Deploy to GitHub Pages"
+git push -f https://github.com/sagarkalel/avighn-medicare-admin-dashboard.git gh-pages
 
-| Field    | Value                  |
-| -------- | ---------------------- |
-| Username | `avighn_admin`         |
-| Password | `AvighnMedicare@2026!` |
-
-> **Change before deploying!** → `lib/utils/app_constants.dart`
+```
 
 ---

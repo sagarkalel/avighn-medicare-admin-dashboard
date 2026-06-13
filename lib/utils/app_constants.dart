@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String adminUsername = 'avighn_admin';
+  static const String adminUsername = 'avighn-medicare';
   static const String adminPassword = 'AvighnMedicare@2026!';
   static const String adminDisplayName = 'Avighn Medicare';
   static const String appsScriptUrl =
