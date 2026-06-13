@@ -7,7 +7,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// Full image manager:
@@ -57,15 +56,13 @@ class _ImageManagerState extends State<ImageManager> {
       _snack('Maximum ${AppConstants.maxImagesPerProduct} images allowed');
       return;
     }
-
     try {
       final result = await FilePicker.pickFiles(
         type: FileType.image,
         allowMultiple: true,
-        withData: true, // needed for web
+        withData: true,
       );
       if (result == null || result.files.isEmpty) return;
-
       final remaining = AppConstants.maxImagesPerProduct - _urls.length;
       final files = result.files.take(remaining).toList();
       await _uploadFiles(files.map((f) => (f.bytes!, f.name)).toList());
@@ -79,7 +76,6 @@ class _ImageManagerState extends State<ImageManager> {
       _snack('Maximum ${AppConstants.maxImagesPerProduct} images allowed');
       return;
     }
-
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
@@ -108,7 +104,6 @@ class _ImageManagerState extends State<ImageManager> {
       _snack('Maximum ${AppConstants.maxImagesPerProduct} images allowed');
       return;
     }
-
     try {
       final picker = ImagePicker();
       final picked = await picker.pickMultiImage(
@@ -137,12 +132,10 @@ class _ImageManagerState extends State<ImageManager> {
 
   Future<void> _uploadFiles(List<(Uint8List, String)> files) async {
     setState(() => _isUploading = true);
-
     for (final (bytes, name) in files) {
       try {
         final isPrimary = _urls.isEmpty;
         final sortOrder = _urls.length;
-
         final url = await ImageUploadService().uploadBytes(
           productId: widget.productId,
           bytes: bytes,
@@ -150,14 +143,12 @@ class _ImageManagerState extends State<ImageManager> {
           isPrimary: isPrimary,
           sortOrder: sortOrder,
         );
-
         setState(() => _urls.add(url));
         widget.onUrlsChanged(List.from(_urls));
       } catch (e) {
         _snack('Upload failed: $e');
       }
     }
-
     setState(() => _isUploading = false);
   }
 
@@ -222,11 +213,14 @@ class _ImageManagerState extends State<ImageManager> {
             onPickGallery: _pickGallery,
             onAddUrl: () => setState(() => _showUrlInput = !_showUrlInput),
           ),
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
         ],
 
         // Uploading progress
-        if (_isUploading) ...[_UploadingIndicator(), SizedBox(height: 14.h)],
+        if (_isUploading) ...[
+          _UploadingIndicator(),
+          const SizedBox(height: 14),
+        ],
 
         // URL input
         if (_showUrlInput && !atMax) ...[
@@ -238,7 +232,7 @@ class _ImageManagerState extends State<ImageManager> {
               _urlCtrl.clear();
             }),
           ),
-          SizedBox(height: 14.h),
+          const SizedBox(height: 14),
         ],
 
         // Image list
@@ -250,7 +244,7 @@ class _ImageManagerState extends State<ImageManager> {
             itemCount: _urls.length,
             proxyDecorator: (child, index, animation) => Material(
               elevation: 8,
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: BorderRadius.circular(10),
               child: child,
             ),
             itemBuilder: (ctx, i) => _ImageTile(
@@ -262,20 +256,23 @@ class _ImageManagerState extends State<ImageManager> {
               onRemove: () => _remove(i),
             ),
           ),
-          SizedBox(height: 8.h),
+          const SizedBox(height: 8),
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.drag_indicator_rounded,
-                size: 13.sp,
+                size: 13,
                 color: AppColors.textTertiary,
               ),
-              SizedBox(width: 4.w),
-              Text(
-                'Drag to reorder · First image is primary · ${_urls.length}/${AppConstants.maxImagesPerProduct}',
-                style: TextStyle(
-                  fontSize: 11.sp,
-                  color: AppColors.textTertiary,
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  'Drag to reorder · First image is primary · ${_urls.length}/${AppConstants.maxImagesPerProduct}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textTertiary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -306,31 +303,27 @@ class _UploadButtonsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 8.w,
-      runSpacing: 8.h,
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        // File / computer picker
         _UpBtn(
           icon: Icons.upload_file_rounded,
           label: 'Upload File',
           color: AppColors.primary,
           onTap: isUploading ? null : onPickFiles,
         ),
-        // Camera (shows on mobile/tablet, hidden on pure desktop)
         _UpBtn(
           icon: Icons.camera_alt_rounded,
           label: 'Camera',
           color: const Color(0xFF6D28D9),
           onTap: isUploading ? null : onPickCamera,
         ),
-        // Gallery
         _UpBtn(
           icon: Icons.photo_library_rounded,
           label: 'Gallery',
           color: const Color(0xFF0891B2),
           onTap: isUploading ? null : onPickGallery,
         ),
-        // URL
         _UpBtn(
           icon: Icons.link_rounded,
           label: 'Paste URL',
@@ -364,29 +357,29 @@ class _UpBtn extends StatelessWidget {
         ? OutlinedButton.styleFrom(
             foregroundColor: color,
             side: BorderSide(color: color.withOpacity(0.5)),
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(8),
             ),
           )
         : ElevatedButton.styleFrom(
             backgroundColor: color,
             foregroundColor: Colors.white,
             elevation: 0,
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(8),
             ),
           );
 
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16.sp),
-        SizedBox(width: 6.w),
+        Icon(icon, size: 16),
+        const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -400,29 +393,32 @@ class _UpBtn extends StatelessWidget {
 class _UploadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     decoration: BoxDecoration(
       color: AppColors.primarySurface,
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: BorderRadius.circular(10),
       border: Border.all(color: AppColors.primary.withOpacity(0.3)),
     ),
     child: Row(
       children: [
-        SizedBox(
-          width: 16.w,
-          height: 16.w,
+        const SizedBox(
+          width: 16,
+          height: 16,
           child: CircularProgressIndicator(
             strokeWidth: 2,
             color: AppColors.primary,
           ),
         ),
-        SizedBox(width: 12.w),
-        Text(
-          'Uploading to Google Drive…',
-          style: TextStyle(
-            fontSize: 13.sp,
-            color: AppColors.primary,
-            fontWeight: FontWeight.w500,
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Text(
+            'Uploading to Google Drive…',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppColors.primary,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -441,38 +437,45 @@ class _UrlInputRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Expanded(
-        child: TextFormField(
-          controller: ctrl,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: 'https://example.com/image.jpg',
-            prefixIcon: Icon(Icons.link_rounded, size: 16.sp),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 12.w,
-              vertical: 10.h,
+      TextFormField(
+        controller: ctrl,
+        autofocus: true,
+        decoration: InputDecoration(
+          hintText: 'https://example.com/image.jpg',
+          prefixIcon: const Icon(Icons.link_rounded, size: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
+          ),
+        ),
+        onFieldSubmitted: (_) => onAdd(),
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: onAdd,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text('Add'),
             ),
           ),
-          onFieldSubmitted: (_) => onAdd(),
-        ),
-      ),
-      SizedBox(width: 8.w),
-      ElevatedButton(
-        onPressed: onAdd,
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
-        ),
-        child: const Text('Add'),
-      ),
-      SizedBox(width: 6.w),
-      OutlinedButton(
-        onPressed: onCancel,
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 13.h),
-        ),
-        child: const Text('Cancel'),
+          const SizedBox(width: 8),
+          Expanded(
+            child: OutlinedButton(
+              onPressed: onCancel,
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text('Cancel'),
+            ),
+          ),
+        ],
       ),
     ],
   ).animate().fadeIn();
@@ -498,16 +501,15 @@ class _EmptyDropZoneState extends State<_EmptyDropZone> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 32.h),
+        padding: const EdgeInsets.symmetric(vertical: 28),
         decoration: BoxDecoration(
           color: _hover ? AppColors.primarySurface : AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: _hover
                 ? AppColors.primary.withOpacity(0.4)
                 : AppColors.border,
             width: 1.5,
-            style: BorderStyle.solid,
           ),
         ),
         child: Column(
@@ -515,22 +517,27 @@ class _EmptyDropZoneState extends State<_EmptyDropZone> {
           children: [
             Icon(
               Icons.cloud_upload_outlined,
-              size: 40.sp,
+              size: 36,
               color: _hover ? AppColors.primary : AppColors.textTertiary,
             ),
-            SizedBox(height: 10.h),
+            const SizedBox(height: 10),
             Text(
               'Click to upload or drag & drop',
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: _hover ? AppColors.primary : AppColors.textSecondary,
               ),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 4.h),
+            const SizedBox(height: 4),
             Text(
               'JPG, PNG, WEBP up to 5MB · Max ${AppConstants.maxImagesPerProduct} images',
-              style: TextStyle(fontSize: 11.sp, color: AppColors.textTertiary),
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textTertiary,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -558,11 +565,11 @@ class _ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    margin: EdgeInsets.symmetric(vertical: 4.h),
-    padding: EdgeInsets.all(10.w),
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
       color: AppColors.surfaceVariant,
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: BorderRadius.circular(10),
       border: Border.all(
         color: isPrimary
             ? AppColors.primary.withOpacity(0.5)
@@ -571,37 +578,43 @@ class _ImageTile extends StatelessWidget {
     ),
     child: Row(
       children: [
+        // Drag handle
+        const Icon(
+          Icons.drag_indicator_rounded,
+          size: 18,
+          color: AppColors.textTertiary,
+        ),
+        const SizedBox(width: 6),
         // Thumbnail
         ClipRRect(
-          borderRadius: BorderRadius.circular(6.r),
+          borderRadius: BorderRadius.circular(6),
           child: SizedBox(
-            width: 56.w,
-            height: 56.w,
+            width: 52,
+            height: 52,
             child: _isNetworkUrl
                 ? CachedNetworkImage(
                     imageUrl: url,
                     fit: BoxFit.cover,
-                    placeholder: (_, i) =>
+                    placeholder: (_, __) =>
                         _thumb(AppColors.border, Icons.image_outlined),
-                    errorWidget: (_, e, s) => _thumb(
+                    errorWidget: (_, __, ___) => _thumb(
                       AppColors.errorLight,
                       Icons.broken_image_outlined,
                       AppColors.error,
                     ),
                   )
                 : _thumb(AppColors.surfaceVariant, Icons.image_outlined),
-            // : Image(image: url),
           ),
         ),
-        SizedBox(width: 12.w),
-
+        const SizedBox(width: 10),
         // Info
         Expanded(
-          flex: 5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
                 children: [
                   if (isPrimary)
                     _Badge(
@@ -609,7 +622,6 @@ class _ImageTile extends StatelessWidget {
                       color: AppColors.primary,
                       bg: AppColors.primarySurface,
                     ),
-                  if (isPrimary) SizedBox(width: 6.w),
                   _Badge(
                     label: '#${index + 1}',
                     color: AppColors.textTertiary,
@@ -617,11 +629,11 @@ class _ImageTile extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 4.h),
+              const SizedBox(height: 4),
               Text(
                 _isNetworkUrl ? _shortened(url) : 'Local file',
-                style: TextStyle(
-                  fontSize: 11.sp,
+                style: const TextStyle(
+                  fontSize: 11,
                   color: AppColors.textSecondary,
                 ),
                 maxLines: 2,
@@ -630,34 +642,31 @@ class _ImageTile extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 8.w),
-
+        const SizedBox(width: 8),
         // Delete
         Material(
           color: AppColors.errorLight,
-          borderRadius: BorderRadius.circular(6.r),
+          borderRadius: BorderRadius.circular(6),
           child: InkWell(
-            borderRadius: BorderRadius.circular(6.r),
+            borderRadius: BorderRadius.circular(6),
             onTap: onRemove,
-            child: Padding(
-              padding: EdgeInsets.all(6.w),
+            child: const Padding(
+              padding: EdgeInsets.all(7),
               child: Icon(
                 Icons.delete_outline_rounded,
-                size: 16.sp,
+                size: 16,
                 color: AppColors.error,
               ),
             ),
           ),
         ),
-
-        const Spacer(),
       ],
     ),
   );
 
   Widget _thumb(Color bg, IconData icon, [Color? iconColor]) => Container(
     color: bg,
-    child: Icon(icon, size: 22.sp, color: iconColor ?? AppColors.textTertiary),
+    child: Icon(icon, size: 22, color: iconColor ?? AppColors.textTertiary),
   );
 
   String _shortened(String url) {
@@ -678,18 +687,14 @@ class _Badge extends StatelessWidget {
   const _Badge({required this.label, required this.color, required this.bg});
   @override
   Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     decoration: BoxDecoration(
       color: bg,
-      borderRadius: BorderRadius.circular(4.r),
+      borderRadius: BorderRadius.circular(4),
     ),
     child: Text(
       label,
-      style: TextStyle(
-        fontSize: 9.sp,
-        fontWeight: FontWeight.w700,
-        color: color,
-      ),
+      style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color),
     ),
   );
 }

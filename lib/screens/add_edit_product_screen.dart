@@ -6,7 +6,6 @@ import 'package:avighn_medicare/widgets/image_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -143,7 +142,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24.w),
+          padding: const EdgeInsets.all(20),
           child: wide
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,22 +152,22 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                       child: Column(
                         children: [
                           _basicCard(),
-                          SizedBox(height: 16.h),
+                          const SizedBox(height: 16),
                           _pricingCard(),
-                          SizedBox(height: 16.h),
+                          const SizedBox(height: 16),
                           _detailsCard(),
                         ],
                       ),
                     ),
-                    SizedBox(width: 20.w),
+                    const SizedBox(width: 20),
                     Expanded(
                       flex: 2,
                       child: Column(
                         children: [
                           _imagesCard(),
-                          SizedBox(height: 16.h),
+                          const SizedBox(height: 16),
                           _settingsCard(),
-                          SizedBox(height: 16.h),
+                          const SizedBox(height: 16),
                           _actions(),
                         ],
                       ),
@@ -178,17 +177,17 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
               : Column(
                   children: [
                     _basicCard(),
-                    SizedBox(height: 16.h),
+                    const SizedBox(height: 16),
                     _pricingCard(),
-                    SizedBox(height: 16.h),
+                    const SizedBox(height: 16),
                     _detailsCard(),
-                    SizedBox(height: 16.h),
+                    const SizedBox(height: 16),
                     _imagesCard(),
-                    SizedBox(height: 16.h),
+                    const SizedBox(height: 16),
                     _settingsCard(),
-                    SizedBox(height: 24.h),
+                    const SizedBox(height: 24),
                     _actions(),
-                    SizedBox(height: 40.h),
+                    const SizedBox(height: 40),
                   ],
                 ),
         ),
@@ -207,26 +206,41 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           hint: 'e.g. Paracetamol 500mg',
           validator: (v) => (v?.trim().isEmpty ?? true) ? 'Required' : null,
         ),
-        SizedBox(height: 14.h),
+        const SizedBox(height: 14),
         _field(
           ctrl: _descCtrl,
           label: 'Description',
           hint: 'Brief description of the product',
           maxLines: 3,
         ),
-        SizedBox(height: 14.h),
-        Row(
-          children: [
-            Expanded(
-              child: _field(
-                ctrl: _brandCtrl,
-                label: 'Brand',
-                hint: 'e.g. HealthCorp',
-              ),
-            ),
-            SizedBox(width: 14.w),
-            Expanded(child: _catDropdown()),
-          ],
+        const SizedBox(height: 14),
+        // On very narrow screens stack these
+        LayoutBuilder(
+          builder: (ctx, c) => c.maxWidth < 300
+              ? Column(
+                  children: [
+                    _field(
+                      ctrl: _brandCtrl,
+                      label: 'Brand',
+                      hint: 'e.g. HealthCorp',
+                    ),
+                    const SizedBox(height: 14),
+                    _catDropdown(),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: _field(
+                        ctrl: _brandCtrl,
+                        label: 'Brand',
+                        hint: 'e.g. HealthCorp',
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(child: _catDropdown()),
+                  ],
+                ),
         ),
       ],
     ),
@@ -235,37 +249,76 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   Widget _pricingCard() => _Card(
     title: 'Pricing',
     icon: Icons.currency_rupee_rounded,
-    child: Row(
-      children: [
-        Expanded(
-          child: _field(
-            ctrl: _priceCtrl,
-            label: 'Price (₹) *',
-            hint: '0.00',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: (v) {
-              if (v?.trim().isEmpty ?? true) return 'Required';
-              if (double.tryParse(v!.trim()) == null) return 'Invalid';
-              return null;
-            },
-          ),
-        ),
-        SizedBox(width: 14.w),
-        Expanded(
-          child: _field(
-            ctrl: _discountCtrl,
-            label: 'Discount %',
-            hint: '0',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: (v) {
-              if (v?.trim().isEmpty ?? true) return null;
-              final d = double.tryParse(v!.trim());
-              if (d == null || d < 0 || d > 100) return '0–100';
-              return null;
-            },
-          ),
-        ),
-      ],
+    child: LayoutBuilder(
+      builder: (ctx, c) => c.maxWidth < 280
+          ? Column(
+              children: [
+                _field(
+                  ctrl: _priceCtrl,
+                  label: 'Price (₹) *',
+                  hint: '0.00',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (v) {
+                    if (v?.trim().isEmpty ?? true) return 'Required';
+                    if (double.tryParse(v!.trim()) == null) return 'Invalid';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 14),
+                _field(
+                  ctrl: _discountCtrl,
+                  label: 'Discount %',
+                  hint: '0',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (v) {
+                    if (v?.trim().isEmpty ?? true) return null;
+                    final d = double.tryParse(v!.trim());
+                    if (d == null || d < 0 || d > 100) return '0–100';
+                    return null;
+                  },
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: _field(
+                    ctrl: _priceCtrl,
+                    label: 'Price (₹) *',
+                    hint: '0.00',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (v) {
+                      if (v?.trim().isEmpty ?? true) return 'Required';
+                      if (double.tryParse(v!.trim()) == null) return 'Invalid';
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: _field(
+                    ctrl: _discountCtrl,
+                    label: 'Discount %',
+                    hint: '0',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (v) {
+                      if (v?.trim().isEmpty ?? true) return null;
+                      final d = double.tryParse(v!.trim());
+                      if (d == null || d < 0 || d > 100) return '0–100';
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
     ),
   ).animate().fadeIn(delay: 50.ms).slideY(begin: 0.05, end: 0);
 
@@ -279,7 +332,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           label: 'Dosage',
           hint: 'e.g. 500mg, After meals',
         ),
-        SizedBox(height: 14.h),
+        const SizedBox(height: 14),
         _field(
           ctrl: _usesCtrl,
           label: 'Uses / Indications',
@@ -321,7 +374,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           subtitleColor: _inStock ? AppColors.success : AppColors.textTertiary,
           onChanged: (v) => setState(() => _inStock = v),
         ),
-        SizedBox(height: 12.h),
+        const SizedBox(height: 12),
         _toggle(
           value: _rx,
           color: AppColors.warning,
@@ -354,31 +407,31 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     required Color subtitleColor,
     required ValueChanged<bool> onChanged,
   }) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     decoration: BoxDecoration(
       color: bgColor,
-      borderRadius: BorderRadius.circular(10.r),
+      borderRadius: BorderRadius.circular(10),
       border: Border.all(color: borderColor),
     ),
     child: Row(
       children: [
-        Icon(icon, size: 20.sp, color: iconColor),
-        SizedBox(width: 12.w),
+        Icon(icon, size: 20, color: iconColor),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: const TextStyle(
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
               Text(
                 subtitle,
-                style: TextStyle(fontSize: 11.sp, color: subtitleColor),
+                style: TextStyle(fontSize: 11, color: subtitleColor),
               ),
             ],
           ),
@@ -396,16 +449,16 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           child: const Text('Cancel'),
         ),
       ),
-      SizedBox(width: 12.w),
+      const SizedBox(width: 12),
       Expanded(
         flex: 2,
         child: ElevatedButton(
           onPressed: _saving ? null : _save,
           child: _saving
-              ? SizedBox(
-                  width: 18.w,
-                  height: 18.w,
-                  child: const CircularProgressIndicator(
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: Colors.white,
                   ),
@@ -434,8 +487,14 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   Widget _catDropdown() => DropdownButtonFormField<String>(
     initialValue: _cat,
     decoration: const InputDecoration(labelText: 'Category'),
+    isExpanded: true,
     items: AppConstants.productCategories
-        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+        .map(
+          (c) => DropdownMenuItem(
+            value: c,
+            child: Text(c, overflow: TextOverflow.ellipsis),
+          ),
+        )
         .toList(),
     onChanged: (v) => setState(() => _cat = v!),
   );
@@ -452,53 +511,57 @@ class _Card extends StatelessWidget {
     this.subtitle,
     required this.child,
   });
+
   @override
   Widget build(BuildContext ctx) => Container(
-    padding: EdgeInsets.all(20.w),
+    padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
       color: AppColors.surface,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(12),
       border: Border.all(color: AppColors.border),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 32.w,
-              height: 32.w,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: AppColors.primarySurface,
-                borderRadius: BorderRadius.circular(8.r),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, size: 16.sp, color: AppColors.primary),
+              child: Icon(icon, size: 16, color: AppColors.primary),
             ),
-            SizedBox(width: 10.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                if (subtitle != null)
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle!,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: AppColors.textTertiary,
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-              ],
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
-        SizedBox(height: 16.h),
+        const SizedBox(height: 16),
         child,
       ],
     ),
